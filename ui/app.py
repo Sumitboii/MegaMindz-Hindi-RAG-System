@@ -45,8 +45,15 @@ except Exception as e:
 st.markdown(
     """
     <div class="app-header">
-      <div class="app-title">MegaMindz Hindi RAG System</div>
-      <div class="app-subtitle">Cross-lingual Retrieval-Augmented Generation over Agni Ki Udaan (Dr. A.P.J. Abdul Kalam)</div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <div class="app-title">MegaMindz Hindi RAG System</div>
+          <div class="app-subtitle">Cross-lingual Retrieval-Augmented Generation over Agni Ki Udaan (Dr. A.P.J. Abdul Kalam)</div>
+        </div>
+        <div style="background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 6px; padding: 0.4rem 0.8rem; font-size: 0.82rem; color: #475569; box-shadow: 0 1px 2px rgba(15,23,42,0.04);">
+          Developed & Designed by <strong style="color: #D97706;">Sumit Singh</strong>
+        </div>
+      </div>
       <div class="header-accent-rule"></div>
     </div>
     """,
@@ -102,6 +109,18 @@ with st.sidebar:
         "• **Language Support:** Hindi + English"
     )
 
+    st.markdown("---")
+    st.markdown(
+        """
+        <div style="font-size: 0.8rem; color: #64748B; text-align: center; padding: 0.5rem 0;">
+          Designed & Developed by<br>
+          <strong style="color: #0F172A; font-size: 0.9rem;">Sumit Singh</strong><br>
+          <span style="font-size: 0.72rem; color: #94A3B8;">MegaMindz AI Solutions</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 HINDI_SAMPLES = [
     ("SLV-III उपग्रह व वर्ष", "SLV-III ने किस उपग्रह को कक्षा में स्थापित किया और किस वर्ष?"),
     ("भारत रत्न प्राप्ति वर्ष", "कलाम को भारत रत्न किस वर्ष प्राप्त हुआ?"),
@@ -116,19 +135,27 @@ ENGLISH_SAMPLES = [
 
 st.markdown('<div class="section-label">Sample Test Queries</div>', unsafe_allow_html=True)
 
-selected_query = None
+# Initialize session state for query execution
+if "execute_query" not in st.session_state:
+    st.session_state.execute_query = False
+if "current_query" not in st.session_state:
+    st.session_state.current_query = ""
 
 st.markdown('<div class="query-group-label">Hindi Reference Queries</div>', unsafe_allow_html=True)
 h_cols = st.columns(3)
 for idx, (label, query_val) in enumerate(HINDI_SAMPLES):
     if h_cols[idx].button(f"{label}", key=f"h_{idx}", help=query_val):
-        selected_query = query_val
+        st.session_state.current_query = query_val
+        st.session_state.execute_query = True
+        st.rerun()
 
 st.markdown('<div class="query-group-label">English Cross-Lingual Queries</div>', unsafe_allow_html=True)
 e_cols = st.columns(3)
 for idx, (label, query_val) in enumerate(ENGLISH_SAMPLES):
     if e_cols[idx].button(f"{label}", key=f"e_{idx}", help=query_val):
-        selected_query = query_val
+        st.session_state.current_query = query_val
+        st.session_state.execute_query = True
+        st.rerun()
 
 st.markdown('<div class="section-label">Query Input</div>', unsafe_allow_html=True)
 input_col, action_col = st.columns([5, 1])
@@ -136,85 +163,118 @@ input_col, action_col = st.columns([5, 1])
 with input_col:
     query_text = st.text_input(
         label="Query Input",
-        value=selected_query or "",
+        value=st.session_state.current_query,
         placeholder="Enter your question in Hindi or English...",
         label_visibility="collapsed",
+        on_change=lambda: st.session_state.update({"execute_query": False}),
     )
 
 with action_col:
     execute_btn = st.button("Search & Answer", type="primary", use_container_width=True)
 
-if execute_btn or (selected_query and query_text):
+# Execute query if button clicked or sample query selected
+should_execute = execute_btn or st.session_state.execute_query
+st.session_state.execute_query = False  # Reset flag
+
+if should_execute:
     if not query_text.strip():
-        st.warning("Please enter a search question.")
+        st.error("❌ Query cannot be empty. Please enter a question in Hindi or English.")
     else:
-        with st.spinner("Retrieving relevant passages and synthesizing grounded answer..."):
-            result = pipeline.answer_query(
-                query=query_text,
-                top_k=top_k,
-                use_hybrid=use_hybrid,
-                chunk_type_filter=chunk_type_filter,
-            )
+        try:
+            with st.spinner("🔍 Retrieving relevant passages and synthesizing grounded answer..."):
+                result = pipeline.answer_query(
+                    query=query_text,
+                    top_k=top_k,
+                    use_hybrid=use_hybrid,
+                    chunk_type_filter=chunk_type_filter,
+                )
+        except Exception as e:
+            st.error(f"❌ Query Processing Error: {str(e)}")
+            st.stop()
 
-        method_name = "Hybrid Search: Dense E5 + BM25" if use_hybrid else "Dense Vector Search: E5"
-
-        if result.get("is_grounded", True):
-            grounding_html = '<div class="grounding-verified">✓ Grounding Verified: Factually anchored in retrieved text.</div>'
+        # Process and display result
+        if result is None:
+            st.error("❌ Pipeline returned no result. Please try again.")
         else:
-            warn_text = result.get("hallucination_check", {}).get("warning", "Potential ungrounded entities detected.")
-            grounding_html = f'<div class="grounding-warning">⚠ {warn_text}</div>'
+            try:
+                method_name = "Hybrid Search: Dense E5 + BM25" if use_hybrid else "Dense Vector Search: E5"
 
-        st.markdown(
-            f"""
-            <div class="answer-card">
-              <div class="answer-header">
-                <div class="answer-tag">Grounded Answer</div>
-                <div class="method-tag">{method_name}</div>
-              </div>
-              <div class="answer-body">{result['answer']}</div>
-              {grounding_html}
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                if result.get("is_grounded", True):
+                    grounding_html = '<div class="grounding-verified">✓ Grounding Verified: Factually anchored in retrieved text.</div>'
+                else:
+                    warn_text = result.get("hallucination_check", {}).get("warning", "Potential ungrounded entities detected.")
+                    grounding_html = f'<div class="grounding-warning">⚠ {warn_text}</div>'
 
-        st.markdown('<div class="section-label">Source Traceability & Citations</div>', unsafe_allow_html=True)
-        
-        citation_chips = []
-        for s in result.get("sources", []):
-            p_num = s.get("page_number")
-            sec = s.get("section_heading", "General")
-            cid = s.get("chunk_id")
-            score = s.get("score", 0.0)
-            chip_html = (
-                f'<div class="citation-chip">'
-                f'<span class="badge-page">Page {p_num}</span>'
-                f'<span class="badge-section">{sec}</span>'
-                f'<span class="badge-meta">chunk_id: {cid}</span>'
-                f'<span class="badge-score">score: {score:.2f}</span>'
-                f'</div>'
-            )
-            citation_chips.append(chip_html)
+                st.markdown(
+                    f"""
+                    <div class="answer-card">
+                      <div class="answer-header">
+                        <div class="answer-tag">Grounded Answer</div>
+                        <div class="method-tag">{method_name}</div>
+                      </div>
+                      <div class="answer-body">{result['answer']}</div>
+                      {grounding_html}
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
-        st.markdown(
-            f'<div class="citation-container"><div class="citation-list">{"".join(citation_chips)}</div></div>',
-            unsafe_allow_html=True,
-        )
+                if not result.get("sources"):
+                    st.warning("⚠️ No sources retrieved for this query. This is unusual; please try a different phrasing.")
+                else:
+                    st.markdown('<div class="section-label">Source Traceability & Citations</div>', unsafe_allow_html=True)
+                    
+                    citation_chips = []
+                    for s in result.get("sources", []):
+                        p_num = s.get("page_number")
+                        sec = s.get("section_heading", "General")
+                        cid = s.get("chunk_id")
+                        score = s.get("score", 0.0)
+                        chip_html = (
+                            f'<div class="citation-chip">'
+                            f'<span class="badge-page">Page {p_num}</span>'
+                            f'<span class="badge-section">{sec}</span>'
+                            f'<span class="badge-meta">chunk_id: {cid}</span>'
+                            f'<span class="badge-score">score: {score:.2f}</span>'
+                            f'</div>'
+                        )
+                        citation_chips.append(chip_html)
 
-        st.markdown('<div class="section-label">Evaluation Citation String</div>', unsafe_allow_html=True)
-        st.code(result["formatted_citation"], language="text")
+                    st.markdown(
+                        f'<div class="citation-container"><div class="citation-list">{"".join(citation_chips)}</div></div>',
+                        unsafe_allow_html=True,
+                    )
 
-        with st.expander("Inspect Retrieved Source Passages (Top-K)"):
-            for idx, s in enumerate(result.get("sources", []), 1):
-                cid = s.get("chunk_id")
-                p_num = s.get("page_number")
-                sec = s.get("section_heading")
-                score = s.get("score")
-                c_type = s.get("chunk_type", "prose")
-                
-                chunk_obj = next((c for c in pipeline.chunks if c["chunk_id"] == cid), None)
-                chunk_body = chunk_obj["text"] if chunk_obj else "Text not found"
+                    st.markdown('<div class="section-label">Evaluation Citation String</div>', unsafe_allow_html=True)
+                    st.code(result["formatted_citation"], language="text")
 
-                st.markdown(f"**Passage #{idx}** — `Page {p_num}` | `{sec}` | `chunk_id: {cid}` | `type: {c_type}` | `score: {score}`")
-                st.markdown(f"```text\n{chunk_body}\n```")
-                st.markdown("---")
+                    with st.expander("Inspect Retrieved Source Passages (Top-K)"):
+                        for idx, s in enumerate(result.get("sources", []), 1):
+                            cid = s.get("chunk_id")
+                            p_num = s.get("page_number")
+                            sec = s.get("section_heading")
+                            score = s.get("score")
+                            c_type = s.get("chunk_type", "prose")
+                            
+                            chunk_obj = next((c for c in pipeline.chunks if c["chunk_id"] == cid), None)
+                            chunk_body = chunk_obj["text"] if chunk_obj else "Text not found"
+
+                            st.markdown(f"**Passage #{idx}** — `Page {p_num}` | `{sec}` | `chunk_id: {cid}` | `type: {c_type}` | `score: {score}`")
+                            st.markdown(f"```text\n{chunk_body}\n```")
+                            st.markdown("---")
+
+            except KeyError as ke:
+                st.error(f"❌ Result Format Error (missing key): {str(ke)}. Pipeline may have returned incomplete data.")
+            except Exception as e:
+                st.error(f"❌ Result Processing Error: {str(e)}")
+
+st.markdown(
+    """
+    <div style="margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid #CBD5E1; text-align: center; font-size: 0.85rem; color: #64748B;">
+      MegaMindz Hindi RAG System • Designed & Developed by <strong style="color: #0F172A;">Sumit Singh</strong> (<a href="https://github.com/Sumitboii" target="_blank" style="color: #D97706; text-decoration: none; font-weight: 600;">@Sumitboii</a>)
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+

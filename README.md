@@ -159,3 +159,11 @@ streamlit run ui/app.py
 - [x] **README** contains all 5 required sections with technical justifications
 - [x] **No hardcoded secrets** committed anywhere
 - [x] **Full test suite passes** (`pytest -v`, 26/26 passing)
+
+---
+
+## 8. Author & Developer
+
+- **Developer & Designer:** Sumit Singh
+- **GitHub:** [@Sumitboii](https://github.com/Sumitboii)
+- **Repository:** [MegaMindz-Hindi-RAG-System](https://github.com/Sumitboii/MegaMindz-Hindi-RAG-System.git)
