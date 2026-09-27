@@ -1,0 +1,25 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Environment variables & secrets (Never commit secrets)
+.env
+
+# ChromaDB runtime data directory (re-generated automatically on initialization)
+data/chroma_db/
+
+# Streamlit local session state
+.streamlit/.sessions/
+
+# OS specific files
+.DS_Store
+Thumbs.db
