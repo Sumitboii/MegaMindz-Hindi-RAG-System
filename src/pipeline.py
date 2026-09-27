@@ -45,7 +45,6 @@ class HindiRAGPipeline:
         """Loads and indexes the document if not already indexed."""
         needs_indexing = force_reindex or (self.vector_store.count() == 0)
 
-        # Always extract chunks to support BM25 and exact text lookup
         if self.pdf_path.exists():
             pages_data = extract_pdf_document(self.pdf_path)
             self.chunks = chunk_document(
@@ -81,7 +80,6 @@ class HindiRAGPipeline:
         if not self.retriever:
             raise RuntimeError("Pipeline retriever is not initialized.")
 
-        # 1. Retrieve most relevant chunks
         retrieved_chunks = self.retriever.retrieve(
             query=query,
             top_k=top_k,
@@ -90,7 +88,6 @@ class HindiRAGPipeline:
             page_filter=page_filter,
         )
 
-        # 2. Generate grounded response with citations
         result = generate_grounded_answer(
             query=query,
             retrieved_chunks=retrieved_chunks,

@@ -5,7 +5,6 @@ and match the exact required string format.
 """
 
 import re
-from pathlib import Path
 from src.generate import format_citations, generate_grounded_answer
 
 

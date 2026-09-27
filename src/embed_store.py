@@ -4,14 +4,12 @@ Handles vector generation using multilingual embeddings (intfloat/multilingual-e
 persists vectors with comprehensive metadata, and executes cosine similarity search.
 """
 
+import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import chromadb
 from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
-
-
-import threading
 import torch
 
 try:
@@ -96,11 +94,6 @@ class VectorStore:
         if not chunks:
             return 0
 
-        # Existing count
-        existing = self.collection.get()
-        existing_ids = set(existing.get("ids", []))
-
-        # Filter new or replace
         ids_to_add = []
         texts_to_add = []
         metadatas_to_add = []
@@ -120,7 +113,6 @@ class VectorStore:
                 "source_doc": str(c.get("source_doc", "")),
             })
 
-        # Process in batches
         for i in range(0, len(ids_to_add), batch_size):
             b_ids = ids_to_add[i : i + batch_size]
             b_texts = texts_to_add[i : i + batch_size]
@@ -128,7 +120,6 @@ class VectorStore:
 
             b_embeddings = self.embed_manager.embed_passages(b_texts)
 
-            # Upsert into ChromaDB
             self.collection.upsert(
                 ids=b_ids,
                 documents=b_texts,
@@ -158,7 +149,6 @@ class VectorStore:
             ids = results["ids"][0]
 
             for doc, meta, dist, cid in zip(docs, metas, distances, ids):
-                # Cosine distance to similarity score: 1 - cosine_distance
                 score = round(max(0.0, min(1.0, 1.0 - float(dist))), 4)
                 formatted_results.append({
                     "chunk_id": meta.get("chunk_id", int(cid) if cid.isdigit() else cid),

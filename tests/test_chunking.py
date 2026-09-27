@@ -24,7 +24,6 @@ def test_chunk_count_and_metadata_completeness():
     pages_data = extract_pdf_document(pdf_path)
     chunks = chunk_document(pages_data)
 
-    # Sanity check chunk count for a 22-page document
     assert 25 <= len(chunks) <= 150, f"Unexpected chunk count: {len(chunks)}"
 
     required_keys = {"chunk_id", "page_number", "section_heading", "chunk_type", "char_start", "char_end", "text"}

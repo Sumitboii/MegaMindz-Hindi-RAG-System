@@ -4,9 +4,7 @@ Verifies that English queries retrieve the same target Hindi document pages
 as equivalent Hindi questions.
 """
 
-from pathlib import Path
 import pytest
-from src.pipeline import HindiRAGPipeline
 
 
 CROSS_LINGUAL_PAIRS = [
@@ -39,13 +37,11 @@ def test_cross_lingual_retrieval_alignment(session_pipeline, pair):
     en_pages = {s["page_number"] for s in en_res["sources"]}
     hi_pages = {s["page_number"] for s in hi_res["sources"]}
 
-    # Both should retrieve relevant expected pages
     assert bool(en_pages & pair["expected_pages"]), (
         f"Cross-lingual failure: EN query '{pair['en_query']}' retrieved pages {en_pages}, "
         f"expected overlap with {pair['expected_pages']}"
     )
 
-    # Intersection between English and Hindi retrieved pages
     common_pages = en_pages & hi_pages
     assert len(common_pages) > 0, (
         f"EN and HI queries for '{pair['concept']}' retrieved completely disjoint pages: "

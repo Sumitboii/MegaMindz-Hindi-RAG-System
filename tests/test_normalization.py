@@ -37,3 +37,10 @@ def test_danda_preserved_as_sentence_boundary():
     normalized = normalize_hindi_text(sample)
     assert "।" in normalized, "Purna Viram (।) must be preserved"
     assert "॥" in normalized, "Deergh Viram (॥) must be preserved"
+
+
+def test_no_duplicate_combining_marks():
+    sample = "कक्षाा में स्थाापित और प्रााप्त"
+    normalized = normalize_hindi_text(sample)
+    assert "ाा" not in normalized
+    assert normalized == "कक्षा में स्थापित और प्राप्त"

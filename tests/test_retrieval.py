@@ -5,8 +5,6 @@ for all 6 required test queries (Hindi & English).
 """
 
 import pytest
-from pathlib import Path
-from src.pipeline import HindiRAGPipeline
 
 MANDATORY_TEST_QUERIES = [
     {
@@ -57,7 +55,6 @@ def test_mandatory_query_retrieval(session_pipeline, test_case):
     sources = result.get("sources", [])
     retrieved_pages = [s["page_number"] for s in sources]
 
-    # Assert that at least one of the ground truth expected pages is in top-k
     hit = any(p in expected_pages for p in retrieved_pages)
     assert hit, (
         f"Retrieval failed for query '{query}'.\n"

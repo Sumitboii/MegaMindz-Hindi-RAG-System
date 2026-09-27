@@ -34,7 +34,6 @@ def verify_grounding(answer: str, context_chunks: List[Dict[str, Any]]) -> Dict[
 
     combined_context = " ".join([c.get("text", "") for c in context_chunks])
 
-    # Extract 4-digit years or numeric values from the answer
     answer_numbers = set(re.findall(r"\b\d{2,4}\b", answer))
     context_numbers = set(re.findall(r"\b\d{2,4}\b", combined_context))
 
@@ -94,7 +93,6 @@ class LLMClient:
             except Exception:
                 pass
 
-        # Fallback to local rule-based extractor
         self.provider_type = "local_heuristic"
 
     def generate(self, prompt: str, system_instruction: str = SYSTEM_GROUNDING_PROMPT) -> str:
@@ -146,7 +144,6 @@ class LLMClient:
         Deterministic local fallback extractor when no external API key is configured.
         Parses query keywords directly against context chunks to maintain grounded QA.
         """
-        # Extract the question part specifically
         q_match = re.search(r"User Question:\s*(.+?)(?:\n\nAnswer:|$)", prompt, re.DOTALL)
         user_q = q_match.group(1).strip() if q_match else prompt
         lower_q = user_q.lower()
@@ -223,11 +220,8 @@ def generate_grounded_answer(
     client = llm_client or LLMClient()
     prompt = build_generation_prompt(query, retrieved_chunks)
     raw_answer = client.generate(prompt)
-
-    # Perform grounding verification
     grounding_info = verify_grounding(raw_answer, retrieved_chunks)
 
-    # Compile structured sources
     sources = [
         {
             "chunk_id": c.get("chunk_id"),

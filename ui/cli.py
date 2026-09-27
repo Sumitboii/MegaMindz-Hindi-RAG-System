@@ -7,7 +7,6 @@ import argparse
 import sys
 from pathlib import Path
 
-# Ensure UTF-8 output on Windows consoles
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 if hasattr(sys.stderr, "reconfigure"):
@@ -57,13 +56,13 @@ MANDATORY_TEST_QUERIES = [
 
 def run_single_query(pipeline: HindiRAGPipeline, query_text: str, top_k: int = 5):
     """Executes a single query and prints formatted response with citations."""
-    print(f"\n=======================================================")
+    print("\n=======================================================")
     print(f"Query: {query_text}")
-    print(f"=======================================================")
+    print("=======================================================")
     res = pipeline.answer_query(query_text, top_k=top_k)
     print(f"\nAnswer:\n{res['answer']}\n")
     print(f"Source (citation):\n{res['formatted_citation']}")
-    print(f"-------------------------------------------------------\n")
+    print("-------------------------------------------------------\n")
 
 
 def run_evaluation(pipeline: HindiRAGPipeline, top_k: int = 5, output_md_path: str = "eval/test_query_results.md"):
@@ -76,7 +75,7 @@ def run_evaluation(pipeline: HindiRAGPipeline, top_k: int = 5, output_md_path: s
         "# Test Query Results & Retrieval Evaluation Log\n",
         f"**Target Document:** `{pipeline.pdf_path.name}`\n",
         f"**Embedding Model:** `{pipeline.model_name}`\n",
-        f"**Retriever:** Hybrid (Dense Cosine Similarity + BM25 Sparse Search)\n",
+        "**Retriever:** Hybrid (Dense Cosine Similarity + BM25 Sparse Search)\n",
         f"**Total Document Chunks:** {len(pipeline.chunks)}\n\n",
         "---\n",
     ]
@@ -90,7 +89,6 @@ def run_evaluation(pipeline: HindiRAGPipeline, top_k: int = 5, output_md_path: s
         print(f"\n[{qid}/6] ({qlang}) {qtext}")
         res = pipeline.answer_query(qtext, top_k=top_k)
 
-        # Check retrieval hit
         retrieved_pages = [s.get("page_number") for s in res.get("sources", [])]
         hit = any(p in exp_pages for p in retrieved_pages)
         status_tag = "PASS" if hit else "FAIL"
@@ -103,13 +101,12 @@ def run_evaluation(pipeline: HindiRAGPipeline, top_k: int = 5, output_md_path: s
         results_md.append(f"**Query:**\n> {qtext}\n\n")
         results_md.append(f"**Answer:**\n{res['answer']}\n\n")
         results_md.append(f"**Source (citation):**\n```text\n{res['formatted_citation']}\n```\n\n")
-        results_md.append(f"**Retrieval Evaluation:**\n")
+        results_md.append("**Retrieval Evaluation:**\n")
         results_md.append(f"- Expected Source Pages: `{exp_pages}`\n")
         results_md.append(f"- Retrieved Top-{top_k} Pages: `{retrieved_pages}`\n")
         results_md.append(f"- Retrieval Status: **`{status_tag}`**\n\n")
         results_md.append("---\n\n")
 
-    # Save to eval file
     out_file = Path(output_md_path)
     out_file.parent.mkdir(parents=True, exist_ok=True)
     out_file.write_text("".join(results_md), encoding="utf-8")

@@ -7,7 +7,7 @@ table structures as dedicated table chunks.
 
 import re
 from typing import Any, Dict, List
-from src.ingest import extract_pdf_document, normalize_hindi_text
+from src.ingest import normalize_hindi_text
 
 
 def split_hindi_sentences(text: str) -> List[str]:
@@ -19,12 +19,10 @@ def split_hindi_sentences(text: str) -> List[str]:
     if not text:
         return []
 
-    # Replace newlines within paragraphs with spaces while keeping paragraph boundaries
     paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
     sentences = []
 
     for para in paragraphs:
-        # Regex splitting on ।, ॥, ?, !, or line breaks, keeping delimiters
         raw_splits = re.split(r"([।॥?!]+|\n+)", para)
         current = ""
         for part in raw_splits:
@@ -48,7 +46,6 @@ def estimate_token_count(text: str) -> int:
     In Devanagari subword tokenizers (like E5/XLM-RoBERTa), 1 token is ~3-4 characters or ~1 word.
     """
     words = text.split()
-    # Hybrid word/character approximation: word count * 1.3
     return max(1, int(len(words) * 1.3))
 
 
@@ -73,10 +70,8 @@ def chunk_document(
         page_text = page_info["text"]
         tables = page_info.get("tables", [])
 
-        # 1. First create dedicated table chunks if any tables exist on this page
         for tab in tables:
             table_md = tab["markdown"]
-            # Build an informative table chunk header with context
             tab_chunk_text = (
                 f"### तालिका (खंड: {section_heading} - पृष्ठ {page_num})\n"
                 f"{table_md}"
@@ -96,7 +91,6 @@ def chunk_document(
             })
             chunk_id_counter += 1
 
-        # 2. Prose sentence-boundary chunking
         sentences = split_hindi_sentences(page_text)
         if not sentences:
             continue
@@ -147,11 +141,9 @@ def chunk_document(
                 })
                 chunk_id_counter += 1
 
-            # Determine next index based on overlap
             if j >= len(sentence_info_list):
                 break
 
-            # Calculate overlap backtracking
             accumulated_overlap = 0
             step_back = 0
             for back_i in range(j - 1, idx, -1):
@@ -160,7 +152,6 @@ def chunk_document(
                 if accumulated_overlap >= overlap_tokens:
                     break
 
-            # Move forward at least 1 sentence to guarantee progress
             next_idx = max(idx + 1, j - step_back)
             idx = next_idx
 

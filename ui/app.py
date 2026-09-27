@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 import streamlit as st
 
-# Force UTF-8 on Windows runtimes
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 if hasattr(sys.stderr, "reconfigure"):
@@ -22,15 +21,14 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# 1. Inject Custom Theme & Typography CSS
 css_path = Path(__file__).parent / "theme.css"
 if css_path.exists():
     st.markdown(f"<style>{css_path.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
 
-# 2. Pipeline Resource Loader with Error Surfacing
 @st.cache_resource(show_spinner="Initializing Hindi RAG Pipeline & Multilingual Embeddings...")
 def get_pipeline():
+    """Initializes and caches the Hindi RAG Pipeline singleton for Streamlit."""
     pdf_path = "data/Agni_Ki_Udaan_Adhyayan_Sahayika_Hindi.pdf"
     if not Path(pdf_path).exists():
         pdf_path = "Agni_Ki_Udaan_Adhyayan_Sahayika_Hindi.pdf"
@@ -44,7 +42,6 @@ try:
 except Exception as e:
     init_error = str(e)
 
-# 3. Header Section
 st.markdown(
     """
     <div class="app-header">
@@ -60,7 +57,6 @@ if init_error:
     st.error(f"Pipeline Initialization Failed: {init_error}")
     st.stop()
 
-# 4. Horizontal Stat Strip Dashboard
 total_chunks = len(pipeline.chunks) if pipeline else 0
 embed_model = "multilingual-e5-base"
 vector_store = "ChromaDB (HNSW)"
@@ -90,7 +86,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 5. Sidebar Controls
 with st.sidebar:
     st.markdown('<div class="section-label">Search Configuration</div>', unsafe_allow_html=True)
     top_k = st.slider("Top-K Retrieved Chunks", min_value=1, max_value=10, value=5)
@@ -107,7 +102,6 @@ with st.sidebar:
         "• **Language Support:** Hindi + English"
     )
 
-# 6. Sample Query Pill Grid
 HINDI_SAMPLES = [
     ("SLV-III उपग्रह व वर्ष", "SLV-III ने किस उपग्रह को कक्षा में स्थापित किया और किस वर्ष?"),
     ("भारत रत्न प्राप्ति वर्ष", "कलाम को भारत रत्न किस वर्ष प्राप्त हुआ?"),
@@ -124,21 +118,18 @@ st.markdown('<div class="section-label">Sample Test Queries</div>', unsafe_allow
 
 selected_query = None
 
-# Row 1: Hindi Queries
 st.markdown('<div class="query-group-label">Hindi Reference Queries</div>', unsafe_allow_html=True)
 h_cols = st.columns(3)
 for idx, (label, query_val) in enumerate(HINDI_SAMPLES):
     if h_cols[idx].button(f"{label}", key=f"h_{idx}", help=query_val):
         selected_query = query_val
 
-# Row 2: English Queries
 st.markdown('<div class="query-group-label">English Cross-Lingual Queries</div>', unsafe_allow_html=True)
 e_cols = st.columns(3)
 for idx, (label, query_val) in enumerate(ENGLISH_SAMPLES):
     if e_cols[idx].button(f"{label}", key=f"e_{idx}", help=query_val):
         selected_query = query_val
 
-# 7. Query Input Area
 st.markdown('<div class="section-label">Query Input</div>', unsafe_allow_html=True)
 input_col, action_col = st.columns([5, 1])
 
@@ -153,7 +144,6 @@ with input_col:
 with action_col:
     execute_btn = st.button("Search & Answer", type="primary", use_container_width=True)
 
-# 8. Execution & Results Display
 if execute_btn or (selected_query and query_text):
     if not query_text.strip():
         st.warning("Please enter a search question.")
@@ -168,14 +158,12 @@ if execute_btn or (selected_query and query_text):
 
         method_name = "Hybrid Search: Dense E5 + BM25" if use_hybrid else "Dense Vector Search: E5"
 
-        # Grounding status HTML
         if result.get("is_grounded", True):
             grounding_html = '<div class="grounding-verified">✓ Grounding Verified: Factually anchored in retrieved text.</div>'
         else:
             warn_text = result.get("hallucination_check", {}).get("warning", "Potential ungrounded entities detected.")
             grounding_html = f'<div class="grounding-warning">⚠ {warn_text}</div>'
 
-        # Render Answer Card
         st.markdown(
             f"""
             <div class="answer-card">
@@ -190,7 +178,6 @@ if execute_btn or (selected_query and query_text):
             unsafe_allow_html=True,
         )
 
-        # Render Citations
         st.markdown('<div class="section-label">Source Traceability & Citations</div>', unsafe_allow_html=True)
         
         citation_chips = []
@@ -214,11 +201,9 @@ if execute_btn or (selected_query and query_text):
             unsafe_allow_html=True,
         )
 
-        # Raw Output Code Block for Graders
         st.markdown('<div class="section-label">Evaluation Citation String</div>', unsafe_allow_html=True)
         st.code(result["formatted_citation"], language="text")
 
-        # Context Passage Inspector
         with st.expander("Inspect Retrieved Source Passages (Top-K)"):
             for idx, s in enumerate(result.get("sources", []), 1):
                 cid = s.get("chunk_id")
