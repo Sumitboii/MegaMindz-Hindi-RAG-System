@@ -53,6 +53,8 @@ A production-grade, Hindi and Multilingual Retrieval-Augmented Generation (RAG) 
 1. **Table Cell-Level Semantic Decomposition:** Generate synthetic question-answer pairs per row of the timeline and awards tables to enable micro-target matching for queries targeting specific years or awards.
 2. **Multi-Document Indexing & Scaled Evaluation Benchmark:** Expand the automated eval suite from 6 queries to an automated 100-query synthetic RAG evaluation benchmark using Ragas / TruLens (measuring Context Precision, Faithfulness, and Answer Relevance).
 3. **Hierarchical Auto-Merging Retriever:** Implement parent-child chunking where small child sentences trigger retrieval while larger parent paragraphs provide the LLM context window.
+4. **Table-Cell Devanagari Glyph Extraction Fidelity:** PyMuPDF's table-cell extraction occasionally reorders characters within conjunct-heavy Devanagari cells (verified against raw extraction output — e.g. 'जैनुलाब्दीन' extracts as 'जनै लु ाबी्दीन' in the mentors table on page 12). This does not affect the 6 required test queries since the same facts also appear in clean prose elsewhere in the document, but it's a real gap in table-cell fidelity. A future pass would either extract each table cell's text via its bounding-box coordinates (`page.get_text` with a clip region) instead of relying on `tab.extract()`'s built-in tokenizer, or switch to `pdfplumber` specifically for table extraction while keeping PyMuPDF for general page text.
+
 
 ---
 
