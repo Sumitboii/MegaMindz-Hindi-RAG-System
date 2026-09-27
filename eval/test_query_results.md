@@ -10,7 +10,7 @@
 > SLV-III ने किस उपग्रह को कक्षा में स्थापित किया और किस वर्ष?
 
 **Answer:**
-SLV-III ने वर्ष 1980 में रोहिणी उपग्रह (Rohini Satellite) को सफलतापूर्वक पृथ्वी की कक्षा में स्थापित किया।
+जुलाई 1980 में, SLV-III ने रोहिणी उपग्रह को सफलतापूर्वक कक्षा में स्थापित किया, जिससे भारत उन थोड़े-से देशों के समूह में आ गया जो अपने रॉकेटों से उपग्रह प्रक्षेपित कर सकते थे।
 
 **Source (citation):**
 ```text
@@ -33,7 +33,7 @@ page: 17 · section: "15 · जीवन-रेखा (टाइमलाइन)
 > कलाम को भारत रत्न किस वर्ष प्राप्त हुआ?
 
 **Answer:**
-डॉ. ए.पी.जे. अब्दुल कलाम को वर्ष 1997 में भारत के सर्वोच्च नागरिक सम्मान 'भारत रत्न' से सम्मानित किया गया।
+| भारत रत्न | भारत का सर्वोच्च नागरिक सम्मान, 1997 में कलाम को प्रदान। |
 
 **Source (citation):**
 ```text
@@ -56,20 +56,20 @@ page: 20 · section: "18 · संस्थाओं एवं शब्दो�
 > पोखरण-II में कलाम की क्या भूमिका थी?
 
 **Answer:**
-पोखरण-II (1998 / ऑपरेशन शक्ति) परमाणु परीक्षणों में डॉ. कलाम ने मुख्य वैज्ञानिक सलाहकार एवं रक्षा अनुसंधान के समन्वयक के रूप में केंद्रीय भूमिका निभाई थी।
+कलाम, जो उस समय रक्षा मंत्री के वैज्ञानिक सलाहकार तथा डीआरडीओ के प्रमुख के रूप में सेवारत थे, ने परमाणु ऊर्जा विभाग के वैज्ञानिकों के साथ मिलकर एक केंद्रीय संगठनात्मक भूमिका निभाई। 8 · पोखरण-II: 1998 के परमाणु परीक्षण मई 1998 में, भारत ने राजस्थान के पोखरण में भूमिगत परमाणु परीक्षणों की एक शृंंखला की, जिसे पोखरण-II या ऑपरेशन शक्ति के नाम से जाना जाता है।
 
 **Source (citation):**
 ```text
 page: 21 · section: "19 · विचार एवं बोध-प्रश्न" · chunk_id: 37 · score: 0.86
 page: 10 · section: "8 · पोखरण-II: 1998 के परमाणु परीक्षण" · chunk_id: 17 · score: 0.86
+page: 11 · section: "9 · अग्नि" · chunk_id: 20 · score: 0.79
 page: 2 · section: "विषय-सूची" · chunk_id: 2 · score: 0.76
 page: 12 · section: "10 · गुरु एवं शिक्षक" · chunk_id: 22 · score: 0.74
-page: 12 · section: "10 · गुरु एवं शिक्षक" · chunk_id: 21 · score: 0.74
 ```
 
 **Retrieval Evaluation:**
 - Expected Source Pages: `[10, 17, 20]`
-- Retrieved Top-5 Pages: `[21, 10, 2, 12, 12]`
+- Retrieved Top-5 Pages: `[21, 10, 11, 2, 12]`
 - Retrieval Status: **`PASS`**
 
 ---
@@ -79,7 +79,7 @@ page: 12 · section: "10 · गुरु एवं शिक्षक" · chunk_
 > Which institution did Kalam attend to study aeronautical engineering?
 
 **Answer:**
-Dr. Kalam attended Madras Institute of Technology (MIT), Chennai (मद्रास इंस्टीट्यूट ऑफ टेक्नोलॉजी, चेन्नई) to study aeronautical engineering.
+उन्होंने वैमानिकी इंजीनियरिंग पढ़ने के लिए चेन्नई के मद्रास इंस्टीट्यूट ऑफ टेक्नोलॉजी (एमआईटी) में प्रवेश लिया। जब उन्होंने वैमानिकी इंजीनियरिंग के बारे में जाना, तभी उन्हें अपना असली बुलावा मिला: वे उड़ने वाली मशीनें बनाना चाहते थे।
 
 **Source (citation):**
 ```text
@@ -102,7 +102,7 @@ page: 2 · section: "विषय-सूची" · chunk_id: 2 · score: 0.58
 > Who co-wrote the autobiography, and in what year was it published?
 
 **Answer:**
-The autobiography 'Wings of Fire' (अग्नि की उड़ान) was co-written with Arun Tiwari (अरुण तिवारी) and published in the year 1999.
+अग्नि की उड़ान, जो 1999 में प्रकाशित हुई और वैज्ञानिक अरुण तिवारी के साथ मिलकर लिखी गई, उनकी आत्मकथा है।
 
 **Source (citation):**
 ```text
@@ -125,7 +125,7 @@ page: 3 · section: "1 · ए.पी.जे. अब्दुल कलाम क
 > How and where did Kalam die in 2015?
 
 **Answer:**
-Dr. Kalam passed away on 27 July 2015 in Shillong, Meghalaya, while delivering a lecture to students at IIM Shillong.
+27 जुलाई 2015 को, कलाम शिलांग के भारतीय प्रबंधन संस्थान में विद्यार्थियों को व्याख्यान देते समय गिर पड़े और कुछ ही देर बाद 83 वर्ष की आयु में उनका निधन हो गया।
 
 **Source (citation):**
 ```text

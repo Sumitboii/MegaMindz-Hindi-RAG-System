@@ -71,6 +71,7 @@ class HindiRAGPipeline:
         query: str,
         top_k: int = 5,
         use_hybrid: bool = True,
+        use_rerank: bool = False,
         chunk_type_filter: Optional[str] = None,
         page_filter: Optional[int] = None,
     ) -> Dict[str, Any]:
@@ -84,6 +85,7 @@ class HindiRAGPipeline:
             query=query,
             top_k=top_k,
             use_hybrid=use_hybrid,
+            use_rerank=use_rerank,
             chunk_type_filter=chunk_type_filter,
             page_filter=page_filter,
         )
@@ -95,3 +97,4 @@ class HindiRAGPipeline:
         )
 
         return result
+

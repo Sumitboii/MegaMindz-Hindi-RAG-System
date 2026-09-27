@@ -42,12 +42,17 @@ A production-grade, Hindi and Multilingual Retrieval-Augmented Generation (RAG) 
 
 ---
 
-## 4. What Would Be Improved with More Time
+## 4. Reranking Architecture & Future Enhancements
 
-1. **Cross-Encoder Reranker:** Add a multilingual cross-encoder reranking pass (e.g. `BAAI/bge-reranker-v2-m3`) over the top-15 retrieved chunks to refine top-5 precision for nuanced queries.
-2. **Table Cell-Level Semantic Decomposition:** Generate synthetic question-answer pairs per row of the timeline and awards tables to enable micro-target matching for queries targeting specific years or awards.
-3. **Multi-Document Indexing & Scaled Evaluation Benchmark:** Expand the automated eval suite from 6 queries to an automated 100-query synthetic RAG evaluation benchmark using Ragas / TruLens (measuring Context Precision, Faithfulness, and Answer Relevance).
-4. **Hierarchical Auto-Merging Retriever:** Implement parent-child chunking where small child sentences trigger retrieval while larger parent paragraphs provide the LLM context window.
+### Implemented Cross-Encoder Reranker
+- **Model:** `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1`
+- **Mechanism:** Dual-stage retrieval pipeline. Stage 1 executes fast hybrid dense (multilingual-E5) + sparse (BM25) search to retrieve the top-15 candidate chunks. Stage 2 evaluates full cross-attention across (query, passage) pairs to score semantic alignment on CPU, returning the refined top-5 chunks.
+- **Graceful Fallback:** Integrated with an optional toggle (`use_rerank: bool = False`) that automatically falls back to dense/hybrid ranking if offline or in memory-constrained environments without interrupting execution.
+
+### What Would Be Improved with More Time
+1. **Table Cell-Level Semantic Decomposition:** Generate synthetic question-answer pairs per row of the timeline and awards tables to enable micro-target matching for queries targeting specific years or awards.
+2. **Multi-Document Indexing & Scaled Evaluation Benchmark:** Expand the automated eval suite from 6 queries to an automated 100-query synthetic RAG evaluation benchmark using Ragas / TruLens (measuring Context Precision, Faithfulness, and Answer Relevance).
+3. **Hierarchical Auto-Merging Retriever:** Implement parent-child chunking where small child sentences trigger retrieval while larger parent paragraphs provide the LLM context window.
 
 ---
 
@@ -151,4 +156,4 @@ streamlit run ui/app.py
 - [x] **Every citation** auto-generated programmatically from vector DB metadata (`page: N · section: "..." · chunk_id: N · score: 0.NN`)
 - [x] **README** contains all 5 required sections with technical justifications
 - [x] **No hardcoded secrets** committed anywhere
-- [x] **Full test suite passes** (`pytest -v`, 25/25 passing)
+- [x] **Full test suite passes** (`pytest -v`, 26/26 passing)
