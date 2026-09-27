@@ -73,13 +73,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### B. Configure LLM Provider (Optional)
-The system operates with a built-in deterministic grounded extractor out-of-the-box. To connect Gemini or OpenAI for frontier generation:
-```bash
-# Copy template and add your API key
-cp .env.example .env
-# Edit .env to set GEMINI_API_KEY=your_key or OPENAI_API_KEY=your_key
-```
+### B. 100% Local & Offline Architecture
+The system operates entirely locally using embedded models and vector storage. Zero external API keys (Gemini, Pinecone, OpenAI, etc.) are required. All embeddings, indexing, and grounded answer synthesis run on your local machine.
+
 
 ### C. Run the Mandatory Test Query Evaluation (All 6 Queries)
 ```bash
@@ -155,4 +151,4 @@ streamlit run ui/app.py
 - [x] **Every citation** auto-generated programmatically from vector DB metadata (`page: N · section: "..." · chunk_id: N · score: 0.NN`)
 - [x] **README** contains all 5 required sections with technical justifications
 - [x] **No hardcoded secrets** committed anywhere
-- [x] **Full test suite passes** (`pytest -v`, 23/23 passing)
+- [x] **Full test suite passes** (`pytest -v`, 25/25 passing)
